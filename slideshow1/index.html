@@ -12,11 +12,21 @@
     height: 100vh;
     margin: 0;
     background-color: #000;
+    -webkit-user-select: none; /* iOS Safari */
+    -ms-user-select: none;     /* IE/Edge */
+    user-select: none;         /* Altri browser */
   }
   img {
     width: 100%;
     max-width: 600px;
-    user-select: none; /* impedisce selezione dell'immagine */
+    user-select: none;           /* impedisce selezione desktop */
+    -webkit-touch-callout: none; /* iOS: disabilita menu tocco lungo */
+    -webkit-user-drag: none;    /* iOS Safari: disabilita drag */
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    touch-action: manipulation;  /* migliora l’interazione touch */
   }
 </style>
 </head>
@@ -56,7 +66,13 @@ function nextImage() {
 imgElement.addEventListener("click", function(){
   nextImage();
 });
+
+// Disabilita menu touch lungo su mobile
+imgElement.addEventListener("contextmenu", function(e){
+  e.preventDefault();
+});
 </script>
 
 </body>
 </html>
+
