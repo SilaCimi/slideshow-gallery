@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Slideshow Protetto</title>
+  <title>Slideshow</title>
   <style>
     html, body {
       margin: 0;
@@ -11,9 +11,6 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
       overflow: hidden;
     }
 
@@ -38,46 +35,16 @@
     .slide.active {
       opacity: 1;
     }
-
-    #overlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0);
-      cursor: pointer;
-      touch-action: none;
-    }
-
-    #progressContainer {
-      position: absolute;
-      top: 10px; left: 5%;
-      width: 90%; height: 5px;
-      background-color: rgba(255,255,255,0.3);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    #progressBar {
-      height: 100%;
-      width: 0%;
-      background-color: #00ff00;
-      transition: width 0.1s linear;
-    }
   </style>
 </head>
 <body>
   <div id="slideshowWrapper">
     <div class="slide" id="slide1"></div>
     <div class="slide" id="slide2"></div>
-    <div id="overlay"></div>
-    <div id="progressContainer">
-      <div id="progressBar"></div>
-    </div>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // Percorsi corretti delle immagini su GitHub Pages
       const images = [
         "slideshow1/foto1.jpg",
         "slideshow1/foto2.jpg",
@@ -87,69 +54,5 @@
       ];
 
       const slide1 = document.getElementById("slide1");
-      const slide2 = document.getElementById("slide2");
-      const overlay = document.getElementById("overlay");
-      const progressBar = document.getElementById("progressBar");
-
-      let currentIndex = 0;
-      let isPressed = false;
-      const duration = 5000;
-      let timeoutId;
-      let startTime;
-      let showingSlide1 = true;
-
-      document.addEventListener('contextmenu', e => e.preventDefault());
-      document.addEventListener('dragstart', e => e.preventDefault());
-
-      function updateProgress() {
-        if (!isPressed) {
-          const elapsed = Date.now() - startTime;
-          const percentage = Math.min((elapsed / duration) * 100, 100);
-          progressBar.style.width = percentage + "%";
-          if (percentage < 100) {
-            requestAnimationFrame(updateProgress);
-          }
-        }
-      }
-
-      function showNextImage() {
-        currentIndex = (currentIndex + 1) % images.length;
-        const nextSlide = showingSlide1 ? slide2 : slide1;
-        const currentSlide = showingSlide1 ? slide1 : slide2;
-        nextSlide.style.backgroundImage = `url('${images[currentIndex]}')`;
-        nextSlide.classList.add("active");
-        currentSlide.classList.remove("active");
-        showingSlide1 = !showingSlide1;
-
-        startTime = Date.now();
-        progressBar.style.width = "0%";
-        updateProgress();
-        scheduleNext();
-      }
-
-      function scheduleNext() {
-        clearTimeout(timeoutId);
-        if (!isPressed) {
-          timeoutId = setTimeout(showNextImage, duration);
-        }
-      }
-
-      overlay.addEventListener("click", showNextImage);
-      overlay.addEventListener("mousedown", () => { isPressed = true; clearTimeout(timeoutId); });
-      overlay.addEventListener("mouseup", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
-      overlay.addEventListener("touchstart", () => { isPressed = true; clearTimeout(timeoutId); });
-      overlay.addEventListener("touchend", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
-
-      // Inizializza slideshow
-      slide1.style.backgroundImage = `url('${images[0]}')`;
-      slide1.classList.add("active");
-      slide2.style.backgroundImage = `url('${images[1]}')`;
-
-      startTime = Date.now();
-      updateProgress();
-      scheduleNext();
-    });
-  </script>
-</body>
-</html>
+      const slide2 = document.getElementById("slide2
 
