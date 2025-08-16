@@ -76,69 +76,72 @@
   </div>
 
   <script>
-    const images = ["foto1.jpg","foto2.jpg","foto3.jpg","foto4.jpg","foto5.jpg"];
-    const slide1 = document.getElementById("slide1");
-    const slide2 = document.getElementById("slide2");
-    const overlay = document.getElementById("overlay");
-    const progressBar = document.getElementById("progressBar");
+    document.addEventListener("DOMContentLoaded", () => {
+      const images = ["foto1.jpg","foto2.jpg","foto3.jpg","foto4.jpg","foto5.jpg"];
+      const slide1 = document.getElementById("slide1");
+      const slide2 = document.getElementById("slide2");
+      const overlay = document.getElementById("overlay");
+      const progressBar = document.getElementById("progressBar");
 
-    let currentIndex = 0;
-    let isPressed = false;
-    const duration = 5000;
-    let timeoutId;
-    let startTime;
-    let showingSlide1 = true;
+      let currentIndex = 0;
+      let isPressed = false;
+      const duration = 5000;
+      let timeoutId;
+      let startTime;
+      let showingSlide1 = true;
 
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('dragstart', e => e.preventDefault());
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('dragstart', e => e.preventDefault());
 
-    function updateProgress() {
-      if (!isPressed) {
-        const elapsed = Date.now() - startTime;
-        const percentage = Math.min((elapsed / duration) * 100, 100);
-        progressBar.style.width = percentage + "%";
-        if (percentage < 100) {
-          requestAnimationFrame(updateProgress);
+      function updateProgress() {
+        if (!isPressed) {
+          const elapsed = Date.now() - startTime;
+          const percentage = Math.min((elapsed / duration) * 100, 100);
+          progressBar.style.width = percentage + "%";
+          if (percentage < 100) {
+            requestAnimationFrame(updateProgress);
+          }
         }
       }
-    }
 
-    function showNextImage() {
-      currentIndex = (currentIndex + 1) % images.length;
-      const nextSlide = showingSlide1 ? slide2 : slide1;
-      const currentSlide = showingSlide1 ? slide1 : slide2;
-      nextSlide.style.backgroundImage = `url('${images[currentIndex]}')`;
-      nextSlide.classList.add("active");
-      currentSlide.classList.remove("active");
-      showingSlide1 = !showingSlide1;
+      function showNextImage() {
+        currentIndex = (currentIndex + 1) % images.length;
+        const nextSlide = showingSlide1 ? slide2 : slide1;
+        const currentSlide = showingSlide1 ? slide1 : slide2;
+        nextSlide.style.backgroundImage = `url('${images[currentIndex]}')`;
+        nextSlide.classList.add("active");
+        currentSlide.classList.remove("active");
+        showingSlide1 = !showingSlide1;
+
+        startTime = Date.now();
+        progressBar.style.width = "0%";
+        updateProgress();
+        scheduleNext();
+      }
+
+      function scheduleNext() {
+        clearTimeout(timeoutId);
+        if (!isPressed) {
+          timeoutId = setTimeout(showNextImage, duration);
+        }
+      }
+
+      overlay.addEventListener("click", showNextImage);
+      overlay.addEventListener("mousedown", () => { isPressed = true; clearTimeout(timeoutId); });
+      overlay.addEventListener("mouseup", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
+      overlay.addEventListener("touchstart", () => { isPressed = true; clearTimeout(timeoutId); });
+      overlay.addEventListener("touchend", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
+
+      // Inizializza slideshow
+      slide1.style.backgroundImage = `url('${images[0]}')`;
+      slide1.classList.add("active");
+      slide2.style.backgroundImage = `url('${images[1]}')`; // prepara seconda slide
 
       startTime = Date.now();
-      progressBar.style.width = "0%";
       updateProgress();
       scheduleNext();
-    }
-
-    function scheduleNext() {
-      clearTimeout(timeoutId);
-      if (!isPressed) {
-        timeoutId = setTimeout(showNextImage, duration);
-      }
-    }
-
-    overlay.addEventListener("click", showNextImage);
-
-    overlay.addEventListener("mousedown", () => { isPressed = true; clearTimeout(timeoutId); });
-    overlay.addEventListener("mouseup", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
-
-    overlay.addEventListener("touchstart", () => { isPressed = true; clearTimeout(timeoutId); });
-    overlay.addEventListener("touchend", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
-
-    // Avvia slideshow
-    slide1.style.backgroundImage = `url('${images[0]}')`;
-    slide1.classList.add("active");
-    startTime = Date.now();
-    updateProgress();
-    scheduleNext();
+    });
   </script>
 </body>
 </html>
+
