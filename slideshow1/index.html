@@ -1,141 +1,98 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Slideshow Interattivo con Canvas</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #000;
-      flex-direction: column;
-    }
-    #progressContainer {
-      width: 90%;
-      height: 5px;
-      background-color: rgba(255, 255, 255, 0.3);
-      border-radius: 3px;
-      margin-bottom: 10px;
-      overflow: hidden;
-    }
-    #progressBar {
-      height: 100%;
-      width: 0%;
-      background-color: #00ff00;
-      transition: width 0.1s linear;
-    }
-    canvas {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 10px;
-      touch-action: none; /* impedisce gesti di selezione o zoom su mobile */
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slideshow Interattivo Canvas</title>
+<style>
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+    user-select: none; /* blocca selezione testo/elementi */
+    touch-action: none; /* disabilita gesture default su mobile */
+  }
+  canvas {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+    display: block;
+  }
+</style>
 </head>
 <body>
-  <div id="progressContainer">
-    <div id="progressBar"></div>
-  </div>
-  <canvas id="slideshowCanvas"></canvas>
+<canvas id="slideshowCanvas"></canvas>
 
-  <script>
-    const imagePaths = ["foto1.jpg", "foto2.jpg", "foto3.jpg", "foto4.jpg", "foto5.jpg"];
-    let images = [];
-    let currentIndex = 0;
-    let isPressed = false;
-    const duration = 5000; // 5 secondi
-    let startTime;
-    let timeoutId;
+<script>
+const imagesSrc = ["foto1.jpg","foto2.jpg","foto3.jpg","foto4.jpg","foto5.jpg"];
+let images = [];
+let currentIndex = 0;
+let isPressed = false;
+const duration = 5000; // 5 secondi
+let timeoutId;
+const canvas = document.getElementById('slideshowCanvas');
+const ctx = canvas.getContext('2d');
 
-    const canvas = document.getElementById("slideshowCanvas");
-    const ctx = canvas.getContext("2d");
-    const progressBar = document.getElementById("progressBar");
+// Funzione per ridimensionare canvas in base al viewport
+function resizeCanvas() {
+  canvas.width = window.innerWidth * 0.9;
+  canvas.height = window.innerHeight * 0.9;
+  drawImage();
+}
+window.addEventListener('resize', resizeCanvas);
 
-    // Precarica immagini
-    imagePaths.forEach(src => {
-      const img = new Image();
-      img.src = src;
-      images.push(img);
-    });
+// Precarica immagini
+imagesSrc.forEach(src => {
+  const img = new Image();
+  img.src = src;
+  images.push(img);
+});
 
-    // Adatta canvas alla finestra
-    function resizeCanvas() {
-      canvas.width = window.innerWidth * 0.9;
-      canvas.height = window.innerHeight * 0.9;
-      drawImage();
-    }
-    window.addEventListener("resize", resizeCanvas);
+// Disegna l'immagine corrente sul canvas
+function drawImage() {
+  const img = images[currentIndex];
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const ratio = Math.min(canvas.width/img.width, canvas.height/img.height);
+  const w = img.width * ratio;
+  const h = img.height * ratio;
+  ctx.drawImage(img, (canvas.width - w)/2, (canvas.height - h)/2, w, h);
+}
 
-    function drawImage() {
-      const img = images[currentIndex];
-      if (!img.complete) {
-        img.onload = drawImage;
-        return;
-      }
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-      const w = img.width * scale;
-      const h = img.height * scale;
-      const x = (canvas.width - w) / 2;
-      const y = (canvas.height - h) / 2;
-      ctx.drawImage(img, x, y, w, h);
-    }
+// Passa all'immagine successiva
+function nextImage() {
+  currentIndex = (currentIndex + 1) % images.length;
+  drawImage();
+  scheduleNext();
+}
 
-    function updateProgress() {
-      if (!isPressed) {
-        const elapsed = Date.now() - startTime;
-        const percentage = Math.min((elapsed / duration) * 100, 100);
-        progressBar.style.width = percentage + "%";
-        if (percentage < 100) {
-          requestAnimationFrame(updateProgress);
-        }
-      }
-    }
+// Gestione slideshow automatico
+function scheduleNext() {
+  clearTimeout(timeoutId);
+  if (!isPressed) {
+    timeoutId = setTimeout(nextImage, duration);
+  }
+}
 
-    function showNextImage() {
-      currentIndex = (currentIndex + 1) % images.length;
-      drawImage();
-      startTime = Date.now();
-      progressBar.style.width = "0%";
-      updateProgress();
-      scheduleNext();
-    }
+// Gestione tap/click per avanzare
+canvas.addEventListener('click', nextImage);
 
-    function scheduleNext() {
-      clearTimeout(timeoutId);
-      if (!isPressed) {
-        timeoutId = setTimeout(showNextImage, duration);
-      }
-    }
+// Gestione "tenendo premuto"
+canvas.addEventListener('mousedown', () => { isPressed = true; clearTimeout(timeoutId); });
+canvas.addEventListener('mouseup', () => { isPressed = false; scheduleNext(); });
 
-    // Tap o click per avanzare
-    canvas.addEventListener("click", showNextImage);
+// Touch per dispositivi mobili
+canvas.addEventListener('touchstart', () => { isPressed = true; clearTimeout(timeoutId); });
+canvas.addEventListener('touchend', () => { isPressed = false; scheduleNext(); });
 
-    // Blocca slideshow se si tiene premuto
-    function pressStart() {
-      isPressed = true;
-      clearTimeout(timeoutId);
-    }
-    function pressEnd() {
-      isPressed = false;
-      startTime = Date.now();
-      updateProgress();
-      scheduleNext();
-    }
-
-    canvas.addEventListener("mousedown", pressStart);
-    canvas.addEventListener("mouseup", pressEnd);
-    canvas.addEventListener("touchstart", pressStart);
-    canvas.addEventListener("touchend", pressEnd);
-
-    // Avvia slideshow
-    resizeCanvas();
-    startTime = Date.now();
-    updateProgress();
-    scheduleNext();
-  </script>
+// Avvia canvas
+window.onload = () => {
+  resizeCanvas();
+  scheduleNext();
+};
+</script>
 </body>
 </html>
+
