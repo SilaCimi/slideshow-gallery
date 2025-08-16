@@ -3,64 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slideshow Interattivo</title>
+<title>Slideshow Web App</title>
 <style>
   body {
+    margin: 0;
+    background-color: #000;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
-    background-color: #000;
+    overflow: hidden;
   }
-  img {
-    width: 100%;
-    max-width: 600px;
-    user-select: none;           /* impedisce selezione testo */
-    -webkit-user-drag: none;     /* impedisce drag su Safari/Chrome mobile */
-    -webkit-touch-callout: none; /* disabilita menu tocco lungo su iOS */
-    pointer-events: auto;        /* necessario per click */
+  canvas {
+    max-width: 100%;
+    max-height: 100%;
+    touch-action: none; /* previene gesture predefinite su mobile */
   }
 </style>
 </head>
 <body>
-
-<img id="slideshow" src="slideshow1/foto1.jpg" draggable="false">
+<canvas id="slideshowCanvas"></canvas>
 
 <script>
+const canvas = document.getElementById('slideshowCanvas');
+const ctx = canvas.getContext('2d');
+
 let imagePaths = [
-  "slideshow1/foto1.jpg",
-  "slideshow1/foto2.jpg",
-  "slideshow1/foto3.jpg",
-  "slideshow1/foto4.jpg",
-  "slideshow1/foto5.jpg"
+  'slideshow1/foto1.jpg',
+  'slideshow1/foto2.jpg',
+  'slideshow1/foto3.jpg',
+  'slideshow1/foto4.jpg',
+  'slideshow1/foto5.jpg'
 ];
 
 let images = [];
 let current = 0;
-let imgElement = document.getElementById("slideshow");
+let autoAdvance = true;
+let intervalTime = 5000;
+let interval;
 
-// Precarica tutte le immagini
+// Adatta canvas alla finestra
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  drawImage();
+}
+window.addEventListener('resize', resizeCanvas);
+
+// Precarica immagini
 imagePaths.forEach(src => {
   let img = new Image();
   img.src = src;
   images.push(img);
+  img.onload = () => {
+    if(current === 0) drawImage(); // Disegna la prima immagine quando caricata
+  }
 });
 
-// Avanzamento automatico ogni 5 secondi
-let interval = setInterval(nextImage, 5000);
+// Disegna immagine sul canvas
+function drawImage() {
+  const img = images[current];
+  if (!img.complete) return;
 
-function nextImage() {
-  current = (current + 1) % images.length;
-  imgElement.src = images[current].src;
+  // scala proporzionalmente
+  let scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+  let w = img.width * scale;
+  let h = img.height * scale;
+  let x = (canvas.width - w) / 2;
+  let y = (canvas.height - h) / 2;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, x, y, w, h);
 }
 
-// Tap sull'immagine fa avanzare alla foto successiva
-imgElement.addEventListener("click", function(){
+// Passa all'immagine successiva
+function nextImage() {
+  current = (current + 1) % images.length;
+  drawImage();
+}
+
+// Avanzamento automatico
+function startAutoAdvance() {
+  interval = setInterval(() => {
+    if(autoAdvance) nextImage();
+  }, intervalTime);
+}
+
+// Tap o click per avanzare
+canvas.addEventListener('pointerdown', (e) => {
+  autoAdvance = false; // ferma temporaneamente l'avanzamento automatico
   nextImage();
 });
-</script>
 
+canvas.addEventListener('pointerup', () => {
+  autoAdvance = true; // riprende l'avanzamento automatico
+});
+
+resizeCanvas();
+startAutoAdvance();
+</script>
 </body>
 </html>
-
