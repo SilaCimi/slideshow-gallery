@@ -12,35 +12,28 @@
     height: 100vh;
     margin: 0;
     background-color: #000;
-    -webkit-user-select: none; /* iOS Safari */
-    -ms-user-select: none;     /* IE/Edge */
-    user-select: none;         /* Altri browser */
   }
   img {
     width: 100%;
     max-width: 600px;
-    user-select: none;           /* impedisce selezione desktop */
-    -webkit-touch-callout: none; /* iOS: disabilita menu tocco lungo */
-    -webkit-user-drag: none;    /* iOS Safari: disabilita drag */
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
-    user-drag: none;
-    touch-action: manipulation;  /* migliora l’interazione touch */
+    user-select: none;           /* impedisce selezione testo */
+    -webkit-user-drag: none;     /* impedisce drag su Safari/Chrome mobile */
+    -webkit-touch-callout: none; /* disabilita menu tocco lungo su iOS */
+    pointer-events: auto;        /* necessario per click */
   }
 </style>
 </head>
 <body>
 
-<img id="slideshow" src="foto1.jpg">
+<img id="slideshow" src="slideshow1/foto1.jpg" draggable="false">
 
 <script>
 let imagePaths = [
-  "foto1.jpg",
-  "foto2.jpg",
-  "foto3.jpg",
-  "foto4.jpg",
-  "foto5.jpg"
+  "slideshow1/foto1.jpg",
+  "slideshow1/foto2.jpg",
+  "slideshow1/foto3.jpg",
+  "slideshow1/foto4.jpg",
+  "slideshow1/foto5.jpg"
 ];
 
 let images = [];
@@ -66,12 +59,8 @@ function nextImage() {
 imgElement.addEventListener("click", function(){
   nextImage();
 });
-
-// Disabilita menu touch lungo su mobile
-imgElement.addEventListener("contextmenu", function(e){
-  e.preventDefault();
-});
 </script>
 
 </body>
 </html>
+
