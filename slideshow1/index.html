@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Slideshow Interattivo Protetto</title>
+  <title>Slideshow Protetto</title>
   <style>
     body {
       display: flex;
@@ -32,17 +32,11 @@
 
     #slideshowWrapper {
       position: relative;
-      max-width: 90%;
-      max-height: 90%;
+      width: 90%;
+      height: 80%;
       border-radius: 10px;
-    }
-
-    #slideshow {
-      width: 100%;
-      height: auto;
-      display: block;
-      user-select: none;
-      -webkit-user-drag: none;
+      background-size: cover;
+      background-position: center;
     }
 
     /* Overlay trasparente */
@@ -53,7 +47,9 @@
       width: 100%;
       height: 100%;
       cursor: pointer;
-      background: rgba(0,0,0,0); /* completamente trasparente */
+      background: rgba(0,0,0,0);
+      -webkit-user-select: none;
+      user-select: none;
     }
   </style>
 </head>
@@ -63,14 +59,13 @@
   </div>
 
   <div id="slideshowWrapper">
-    <img id="slideshow" src="foto1.jpg" alt="Slideshow">
     <div id="overlay"></div>
   </div>
 
   <script>
     const images = ["foto1.jpg", "foto2.jpg", "foto3.jpg", "foto4.jpg", "foto5.jpg"];
     let currentIndex = 0;
-    const slideshow = document.getElementById("slideshow");
+    const wrapper = document.getElementById("slideshowWrapper");
     const overlay = document.getElementById("overlay");
     const progressBar = document.getElementById("progressBar");
     let timeoutId;
@@ -94,7 +89,7 @@
 
     function showNextImage() {
       currentIndex = (currentIndex + 1) % images.length;
-      slideshow.src = images[currentIndex];
+      wrapper.style.backgroundImage = `url('${images[currentIndex]}')`;
       startTime = Date.now();
       progressBar.style.width = "0%";
       updateProgress();
@@ -118,10 +113,12 @@
     overlay.addEventListener("touchend", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
 
     // Avvia slideshow
+    wrapper.style.backgroundImage = `url('${images[0]}')`;
     startTime = Date.now();
     updateProgress();
     scheduleNext();
   </script>
 </body>
 </html>
+
 
