@@ -2,57 +2,104 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Slideshow</title>
+  <title>Slideshow Interattivo con Barra</title>
   <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      background-color: #000;
+    body {
       display: flex;
       justify-content: center;
       align-items: center;
-      overflow: hidden;
+      height: 100vh;
+      margin: 0;
+      background-color: #000;
+      flex-direction: column;
     }
-
-    #slideshowWrapper {
-      position: relative;
+    #progressContainer {
       width: 90%;
-      height: 80%;
-      border-radius: 10px;
+      height: 5px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      margin-bottom: 10px;
       overflow: hidden;
     }
-
-    .slide {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background-color: #00ff00;
+      transition: width 0.1s linear;
     }
-
-    .slide.active {
+    #slideshow {
+      max-width: 90%;
+      max-height: 90%;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: opacity 0.5s ease-in-out;
       opacity: 1;
     }
   </style>
 </head>
 <body>
-  <div id="slideshowWrapper">
-    <div class="slide" id="slide1"></div>
-    <div class="slide" id="slide2"></div>
+  <div id="progressContainer">
+    <div id="progressBar"></div>
   </div>
+  <img id="slideshow" src="foto1.jpg" alt="Slideshow">
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const images = [
-        "slideshow1/foto1.jpg",
-        "slideshow1/foto2.jpg",
-        "slideshow1/foto3.jpg",
-        "slideshow1/foto4.jpg",
-        "slideshow1/foto5.jpg"
-      ];
+    const images = ["foto1.jpg", "foto2.jpg", "foto3.jpg", "foto4.jpg", "foto5.jpg"];
+    let currentIndex = 0;
+    const slideshow = document.getElementById("slideshow");
+    const progressBar = document.getElementById("progressBar");
+    let timeoutId;
+    let isPressed = false;
+    let startTime;
+    const duration = 5000; // 5 secondi
 
-      const slide1 = document.getElementById("slide1");
-      const slide2 = document.getElementById("slide2
+    function updateProgress() {
+      if (!isPressed) {
+        const elapsed = Date.now() - startTime;
+        const percentage = Math.min((elapsed / duration) * 100, 100);
+        progressBar.style.width = percentage + "%";
+        if (percentage < 100) {
+          requestAnimationFrame(updateProgress);
+        }
+      }
+    }
+
+    function showNextImage() {
+      slideshow.style.opacity = 0;
+      setTimeout(() => {
+        currentIndex = (currentIndex + 1) % images.length;
+        slideshow.src = images[currentIndex];
+        slideshow.style.opacity = 1;
+        startTime = Date.now();
+        progressBar.style.width = "0%";
+        updateProgress();
+      }, 250);
+      scheduleNext();
+    }
+
+    function scheduleNext() {
+      clearTimeout(timeoutId);
+      if (!isPressed) {
+        timeoutId = setTimeout(showNextImage, duration);
+      }
+    }
+
+    // Avanza all'immagine successiva al click/tocco singolo
+    slideshow.addEventListener("click", showNextImage);
+
+    // Gestione "tenendo premuto"
+    slideshow.addEventListener("mousedown", () => { isPressed = true; clearTimeout(timeoutId); });
+    slideshow.addEventListener("mouseup", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
+
+    // Per dispositivi touch
+    slideshow.addEventListener("touchstart", () => { isPressed = true; clearTimeout(timeoutId); });
+    slideshow.addEventListener("touchend", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
+
+    // Avvia lo slideshow automatico e la barra di progresso
+    startTime = Date.now();
+    updateProgress();
+    scheduleNext();
+  </script>
+</body>
+</html>
 
