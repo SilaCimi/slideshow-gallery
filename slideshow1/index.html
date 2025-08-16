@@ -1,27 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <title>Slideshow</title>
-    <style>
-        body { display:flex; justify-content:center; align-items:center; height:100vh; margin:0; background:#000; }
-        img { max-width:90%; max-height:90%; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Slideshow Interattivo con Barra</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #000;
+      flex-direction: column;
+    }
+    #progressContainer {
+      width: 90%;
+      height: 5px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background-color: #00ff00;
+      transition: width 0.1s linear;
+    }
+    #slideshow {
+      max-width: 90%;
+      max-height: 90%;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: opacity 0.5s ease-in-out;
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
-    <img id="slideshow" src="foto1.jpg">
-    <script>
-        const immagini = ["foto1.jpg","foto2.jpg","foto3.jpg","foto4.jpg","foto5.jpg"];
-        let index = 0;
-        const imgElement = document.getElementById("slideshow");
+  <div id="progressContainer">
+    <div id="progressBar"></div>
+  </div>
+  <img id="slideshow" src="foto1.jpg" alt="Slideshow">
 
-        function nextImage() {
-            index = (index + 1) % immagini.length;
-            imgElement.src = immagini[index];
+  <script>
+    const images = ["foto1.jpg", "foto2.jpg", "foto3.jpg", "foto4.jpg", "foto5.jpg"];
+    let currentIndex = 0;
+    const slideshow = document.getElementById("slideshow");
+    const progressBar = document.getElementById("progressBar");
+    let timeoutId;
+    let isPressed = false;
+    let startTime;
+    const duration = 5000; // 5 secondi
+
+    function updateProgress() {
+      if (!isPressed) {
+        const elapsed = Date.now() - startTime;
+        const percentage = Math.min((elapsed / duration) * 100, 100);
+        progressBar.style.width = percentage + "%";
+        if (percentage < 100) {
+          requestAnimationFrame(updateProgress);
         }
+      }
+    }
 
-        // Cambia immagine ogni 3 secondi
-        setInterval(nextImage, 3000);
-    </script>
+    function showNextImage() {
+      slideshow.style.opacity = 0;
+      setTimeout(() => {
+        currentIndex = (currentIndex + 1) % images.length;
+        slideshow.src = images[currentIndex];
+        slideshow.style.opacity = 1;
+        startTime = Date.now();
+        progressBar.style.width = "0%";
+        updateProgress();
+      }, 250);
+      scheduleNext();
+    }
+
+    function scheduleNext() {
+      clearTimeout(timeoutId);
+      if (!isPressed) {
+        timeoutId = setTimeout(showNextImage, duration);
+      }
+    }
+
+    // Avanza all'immagine successiva al click/tocco singolo
+    slideshow.addEventListener("click", showNextImage);
+
+    // Gestione "tenendo premuto"
+    slideshow.addEventListener("mousedown", () => { isPressed = true; clearTimeout(timeoutId); });
+    slideshow.addEventListener("mouseup", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
+
+    // Per dispositivi touch
+    slideshow.addEventListener("touchstart", () => { isPressed = true; clearTimeout(timeoutId); });
+    slideshow.addEventListener("touchend", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
+
+    // Avvia lo slideshow automatico e la barra di progresso
+    startTime = Date.now();
+    updateProgress();
+    scheduleNext();
+  </script>
 </body>
 </html>
+
