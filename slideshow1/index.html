@@ -4,22 +4,43 @@
   <meta charset="UTF-8">
   <title>Slideshow Protetto</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      height: 100%;
+      background-color: #000;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #000;
-      flex-direction: column;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      overflow: hidden;
+    }
+
+    #slideshowWrapper {
+      position: relative;
+      width: 90%;
+      height: 80%;
+      background-size: cover;
+      background-position: center;
+      border-radius: 10px;
+    }
+
+    #overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0);
+      cursor: pointer;
+      touch-action: none;
     }
 
     #progressContainer {
-      width: 90%;
-      height: 5px;
-      background-color: rgba(255, 255, 255, 0.3);
+      position: absolute;
+      top: 10px; left: 5%;
+      width: 90%; height: 5px;
+      background-color: rgba(255,255,255,0.3);
       border-radius: 3px;
-      margin-bottom: 10px;
       overflow: hidden;
     }
 
@@ -29,52 +50,30 @@
       background-color: #00ff00;
       transition: width 0.1s linear;
     }
-
-    #slideshowWrapper {
-      position: relative;
-      width: 90%;
-      height: 80%;
-      border-radius: 10px;
-      background-size: cover;
-      background-position: center;
-    }
-
-    /* Overlay trasparente */
-    #overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-      background: rgba(0,0,0,0);
-      -webkit-user-select: none;
-      user-select: none;
-    }
   </style>
 </head>
 <body>
-  <div id="progressContainer">
-    <div id="progressBar"></div>
-  </div>
-
   <div id="slideshowWrapper">
     <div id="overlay"></div>
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+    </div>
   </div>
 
   <script>
-    const images = ["foto1.jpg", "foto2.jpg", "foto3.jpg", "foto4.jpg", "foto5.jpg"];
-    let currentIndex = 0;
+    const images = ["foto1.jpg","foto2.jpg","foto3.jpg","foto4.jpg","foto5.jpg"];
     const wrapper = document.getElementById("slideshowWrapper");
     const overlay = document.getElementById("overlay");
     const progressBar = document.getElementById("progressBar");
-    let timeoutId;
+    let currentIndex = 0;
     let isPressed = false;
+    const duration = 5000;
+    let timeoutId;
     let startTime;
-    const duration = 5000; // 5 secondi
 
-    // Disabilita click destro
+    // Blocca menu contestuale e drag
     document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
 
     function updateProgress() {
       if (!isPressed) {
@@ -103,7 +102,6 @@
       }
     }
 
-    // Gestione overlay per avanzamento e blocco foto
     overlay.addEventListener("click", showNextImage);
 
     overlay.addEventListener("mousedown", () => { isPressed = true; clearTimeout(timeoutId); });
@@ -120,5 +118,6 @@
   </script>
 </body>
 </html>
+
 
 
