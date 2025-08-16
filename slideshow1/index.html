@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Slideshow Interattivo con Barra</title>
+  <title>Slideshow Interattivo Protetto</title>
   <style>
     body {
       display: flex;
@@ -13,6 +13,7 @@
       background-color: #000;
       flex-direction: column;
     }
+
     #progressContainer {
       width: 90%;
       height: 5px;
@@ -21,19 +22,22 @@
       margin-bottom: 10px;
       overflow: hidden;
     }
+
     #progressBar {
       height: 100%;
       width: 0%;
       background-color: #00ff00;
       transition: width 0.1s linear;
     }
+
     #slideshow {
       max-width: 90%;
       max-height: 90%;
       cursor: pointer;
       border-radius: 10px;
-      transition: opacity 0.5s ease-in-out;
-      opacity: 1;
+      user-select: none;        /* Impedisce selezione testo/immagine */
+      -webkit-user-drag: none;  /* Impedisce drag su WebKit (Chrome/Safari) */
+      pointer-events: auto;
     }
   </style>
 </head>
@@ -53,6 +57,9 @@
     let startTime;
     const duration = 5000; // 5 secondi
 
+    // Disabilita click destro
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
     function updateProgress() {
       if (!isPressed) {
         const elapsed = Date.now() - startTime;
@@ -65,15 +72,11 @@
     }
 
     function showNextImage() {
-      slideshow.style.opacity = 0;
-      setTimeout(() => {
-        currentIndex = (currentIndex + 1) % images.length;
-        slideshow.src = images[currentIndex];
-        slideshow.style.opacity = 1;
-        startTime = Date.now();
-        progressBar.style.width = "0%";
-        updateProgress();
-      }, 250);
+      currentIndex = (currentIndex + 1) % images.length;
+      slideshow.src = images[currentIndex]; // cambio istantaneo
+      startTime = Date.now();
+      progressBar.style.width = "0%";
+      updateProgress();
       scheduleNext();
     }
 
@@ -102,4 +105,3 @@
   </script>
 </body>
 </html>
-
