@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Slideshow</title>
+    <style>
+        body { display:flex; justify-content:center; align-items:center; height:100vh; margin:0; background:#000; }
+        img { max-width:90%; max-height:90%; }
+    </style>
+</head>
+<body>
+    <img id="slideshow" src="foto1.jpg">
+    <script>
+        const immagini = ["foto1.jpg","foto2.jpg","foto3.jpg","foto4.jpg","foto5.jpg"];
+        let index = 0;
+        const imgElement = document.getElementById("slideshow");
+
+        function nextImage() {
+            index = (index + 1) % immagini.length;
+            imgElement.src = immagini[index];
+        }
+
+        // Cambia immagine ogni 3 secondi
+        setInterval(nextImage, 3000);
+    </script>
+</body>
+</html>
