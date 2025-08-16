@@ -25,7 +25,7 @@
 <img id="slideshow" src="slideshow1/foto1.jpg">
 
 <script>
-let images = [
+let imagePaths = [
   "slideshow1/foto1.jpg",
   "slideshow1/foto2.jpg",
   "slideshow1/foto3.jpg",
@@ -33,31 +33,28 @@ let images = [
   "slideshow1/foto5.jpg"
 ];
 
+let images = [];
 let current = 0;
 let imgElement = document.getElementById("slideshow");
+
+// Precarica tutte le immagini
+imagePaths.forEach(src => {
+  let img = new Image();
+  img.src = src;
+  images.push(img);
+});
 
 // Avanzamento automatico ogni 5 secondi
 let interval = setInterval(nextImage, 5000);
 
 function nextImage() {
   current = (current + 1) % images.length;
-  imgElement.src = images[current];
+  imgElement.src = images[current].src;
 }
 
-function prevImage() {
-  current = (current - 1 + images.length) % images.length;
-  imgElement.src = images[current];
-}
-
-// Gestione tap sul lato sinistro/destra
-imgElement.addEventListener("click", function(event){
-  let rect = imgElement.getBoundingClientRect();
-  let x = event.clientX - rect.left; // posizione del click relativa all'immagine
-  if (x < rect.width / 2) {
-    prevImage();
-  } else {
-    nextImage();
-  }
+// Tap sull'immagine fa avanzare alla foto successiva
+imgElement.addEventListener("click", function(){
+  nextImage();
 });
 </script>
 
