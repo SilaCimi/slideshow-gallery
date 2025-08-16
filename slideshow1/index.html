@@ -30,14 +30,30 @@
       transition: width 0.1s linear;
     }
 
-    #slideshow {
+    #slideshowWrapper {
+      position: relative;
       max-width: 90%;
       max-height: 90%;
-      cursor: pointer;
       border-radius: 10px;
-      user-select: none;        /* Impedisce selezione testo/immagine */
-      -webkit-user-drag: none;  /* Impedisce drag su WebKit (Chrome/Safari) */
-      pointer-events: auto;
+    }
+
+    #slideshow {
+      width: 100%;
+      height: auto;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Overlay trasparente */
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      background: rgba(0,0,0,0); /* completamente trasparente */
     }
   </style>
 </head>
@@ -45,12 +61,17 @@
   <div id="progressContainer">
     <div id="progressBar"></div>
   </div>
-  <img id="slideshow" src="foto1.jpg" alt="Slideshow">
+
+  <div id="slideshowWrapper">
+    <img id="slideshow" src="foto1.jpg" alt="Slideshow">
+    <div id="overlay"></div>
+  </div>
 
   <script>
     const images = ["foto1.jpg", "foto2.jpg", "foto3.jpg", "foto4.jpg", "foto5.jpg"];
     let currentIndex = 0;
     const slideshow = document.getElementById("slideshow");
+    const overlay = document.getElementById("overlay");
     const progressBar = document.getElementById("progressBar");
     let timeoutId;
     let isPressed = false;
@@ -73,7 +94,7 @@
 
     function showNextImage() {
       currentIndex = (currentIndex + 1) % images.length;
-      slideshow.src = images[currentIndex]; // cambio istantaneo
+      slideshow.src = images[currentIndex];
       startTime = Date.now();
       progressBar.style.width = "0%";
       updateProgress();
@@ -87,21 +108,20 @@
       }
     }
 
-    // Avanza all'immagine successiva al click/tocco singolo
-    slideshow.addEventListener("click", showNextImage);
+    // Gestione overlay per avanzamento e blocco foto
+    overlay.addEventListener("click", showNextImage);
 
-    // Gestione "tenendo premuto"
-    slideshow.addEventListener("mousedown", () => { isPressed = true; clearTimeout(timeoutId); });
-    slideshow.addEventListener("mouseup", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
+    overlay.addEventListener("mousedown", () => { isPressed = true; clearTimeout(timeoutId); });
+    overlay.addEventListener("mouseup", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
 
-    // Per dispositivi touch
-    slideshow.addEventListener("touchstart", () => { isPressed = true; clearTimeout(timeoutId); });
-    slideshow.addEventListener("touchend", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
+    overlay.addEventListener("touchstart", () => { isPressed = true; clearTimeout(timeoutId); });
+    overlay.addEventListener("touchend", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
 
-    // Avvia lo slideshow automatico e la barra di progresso
+    // Avvia slideshow
     startTime = Date.now();
     updateProgress();
     scheduleNext();
   </script>
 </body>
 </html>
+
