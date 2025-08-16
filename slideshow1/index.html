@@ -1,113 +1,65 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Slideshow</title>
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      background-color: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    #slideshowWrapper {
-      position: relative;
-      width: 90%;
-      height: 80%;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .slide {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
-    }
-
-    .slide.active {
-      opacity: 1;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slideshow Interattivo</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #000;
+  }
+  img {
+    width: 100%;
+    max-width: 600px;
+    user-select: none; /* impedisce selezione dell'immagine */
+  }
+</style>
 </head>
 <body>
-  <div id="slideshowWrapper">
-    <div class="slide" id="slide1"></div>
-    <div class="slide" id="slide2"></div>
-  </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const images = [
-        "slideshow1/foto1.jpg",
-        "slideshow1/foto2.jpg",
-        "slideshow1/foto3.jpg",
-        "slideshow1/foto4.jpg",
-        "slideshow1/foto5.jpg"
-      ];
+<img id="slideshow" src="slideshow1/foto1.jpg">
 
-      const slide1 = document.getElementById("slide1");
-      const slide2 = document.getElementById("slide2");
+<script>
+let images = [
+  "slideshow1/foto1.jpg",
+  "slideshow1/foto2.jpg",
+  "slideshow1/foto3.jpg",
+  "slideshow1/foto4.jpg",
+  "slideshow1/foto5.jpg"
+];
 
-      let currentIndex = 0;
-      let showingSlide1 = true;
-      const duration = 5000;
-      let timeoutId;
+let current = 0;
+let imgElement = document.getElementById("slideshow");
 
-      function showImage(index) {
-        currentIndex = (index + images.length) % images.length;
-        const nextSlide = showingSlide1 ? slide2 : slide1;
-        const currentSlide = showingSlide1 ? slide1 : slide2;
+// Avanzamento automatico ogni 5 secondi
+let interval = setInterval(nextImage, 5000);
 
-        nextSlide.style.backgroundImage = `url('${images[currentIndex]}')`;
-        nextSlide.classList.add("active");
-        currentSlide.classList.remove("active");
+function nextImage() {
+  current = (current + 1) % images.length;
+  imgElement.src = images[current];
+}
 
-        showingSlide1 = !showingSlide1;
-        scheduleNext();
-      }
+function prevImage() {
+  current = (current - 1 + images.length) % images.length;
+  imgElement.src = images[current];
+}
 
-      function showNextImage() {
-        showImage(currentIndex + 1);
-      }
+// Gestione tap sul lato sinistro/destra
+imgElement.addEventListener("click", function(event){
+  let rect = imgElement.getBoundingClientRect();
+  let x = event.clientX - rect.left; // posizione del click relativa all'immagine
+  if (x < rect.width / 2) {
+    prevImage();
+  } else {
+    nextImage();
+  }
+});
+</script>
 
-      function showPrevImage() {
-        showImage(currentIndex - 1);
-      }
-
-      function scheduleNext() {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(showNextImage, duration);
-      }
-
-      // Tocca sinistro/destra
-      document.getElementById("slideshowWrapper").addEventListener("click", (e) => {
-        const wrapper = e.currentTarget;
-        const x = e.clientX - wrapper.getBoundingClientRect().left;
-        const half = wrapper.offsetWidth / 2;
-
-        if (x < half) {
-          showPrevImage();
-        } else {
-          showNextImage();
-        }
-      });
-
-      // Inizializza slideshow
-      slide1.style.backgroundImage = `url('${images[0]}')`;
-      slide1.classList.add("active");
-      slide2.style.backgroundImage = `url('${images[1]}')`;
-
-      scheduleNext();
-    });
-  </script>
 </body>
 </html>
-
