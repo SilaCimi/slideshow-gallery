@@ -21,9 +21,22 @@
       position: relative;
       width: 90%;
       height: 80%;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background-size: cover;
       background-position: center;
-      border-radius: 10px;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out; /* transizione veloce */
+    }
+
+    .slide.active {
+      opacity: 1;
     }
 
     #overlay {
@@ -54,6 +67,8 @@
 </head>
 <body>
   <div id="slideshowWrapper">
+    <div class="slide" id="slide1"></div>
+    <div class="slide" id="slide2"></div>
     <div id="overlay"></div>
     <div id="progressContainer">
       <div id="progressBar"></div>
@@ -62,16 +77,18 @@
 
   <script>
     const images = ["foto1.jpg","foto2.jpg","foto3.jpg","foto4.jpg","foto5.jpg"];
-    const wrapper = document.getElementById("slideshowWrapper");
+    const slide1 = document.getElementById("slide1");
+    const slide2 = document.getElementById("slide2");
     const overlay = document.getElementById("overlay");
     const progressBar = document.getElementById("progressBar");
+
     let currentIndex = 0;
     let isPressed = false;
     const duration = 5000;
     let timeoutId;
     let startTime;
+    let showingSlide1 = true;
 
-    // Blocca menu contestuale e drag
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('dragstart', e => e.preventDefault());
 
@@ -88,7 +105,13 @@
 
     function showNextImage() {
       currentIndex = (currentIndex + 1) % images.length;
-      wrapper.style.backgroundImage = `url('${images[currentIndex]}')`;
+      const nextSlide = showingSlide1 ? slide2 : slide1;
+      const currentSlide = showingSlide1 ? slide1 : slide2;
+      nextSlide.style.backgroundImage = `url('${images[currentIndex]}')`;
+      nextSlide.classList.add("active");
+      currentSlide.classList.remove("active");
+      showingSlide1 = !showingSlide1;
+
       startTime = Date.now();
       progressBar.style.width = "0%";
       updateProgress();
@@ -111,13 +134,15 @@
     overlay.addEventListener("touchend", () => { isPressed = false; startTime = Date.now(); updateProgress(); scheduleNext(); });
 
     // Avvia slideshow
-    wrapper.style.backgroundImage = `url('${images[0]}')`;
+    slide1.style.backgroundImage = `url('${images[0]}')`;
+    slide1.classList.add("active");
     startTime = Date.now();
     updateProgress();
     scheduleNext();
   </script>
 </body>
 </html>
+
 
 
 
